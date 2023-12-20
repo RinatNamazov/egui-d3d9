@@ -207,6 +207,11 @@ impl<T> EguiDx9<T> {
         // safe. we only write here, and only read elsewhere.
         self.input_man.process(umsg, wparam.0, lparam.0);
     }
+
+    #[inline]
+    pub fn ctx(&self) -> &Context {
+        &self.ctx
+    }
 }
 
 impl<T> EguiDx9<T> {
