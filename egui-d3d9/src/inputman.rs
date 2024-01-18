@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+
 use clipboard::{windows_clipboard::WindowsClipboardContext, ClipboardProvider};
 use egui::{Event, Key, Modifiers, PointerButton, Pos2, RawInput, Rect, Vec2};
 use windows::{
@@ -239,6 +240,7 @@ impl InputManager {
                         pressed: true,
                         modifiers,
                         key,
+                        physical_key: None,
                         repeat: lparam & (KF_REPEAT as isize) > 0,
                     });
                 }
@@ -253,6 +255,7 @@ impl InputManager {
                         pressed: false,
                         modifiers,
                         key,
+                        physical_key: None,
                         repeat: false,
                     });
                 }
@@ -274,12 +277,7 @@ impl InputManager {
             events: std::mem::take(&mut self.events),
             screen_rect: Some(self.get_screen_rect()),
             time: Some(Self::get_system_time()),
-            pixels_per_point: Some(1.),
-            max_texture_side: None,
-            predicted_dt: 1. / 60.,
-            hovered_files: vec![],
-            dropped_files: vec![],
-            focused: true,
+            ..Default::default()
         }
     }
 
@@ -287,7 +285,7 @@ impl InputManager {
     pub fn get_system_time() -> f64 {
         let mut time = 0;
         unsafe {
-            expect!(NtQuerySystemTime(&mut time), "Failed to get system time");
+            expect!(NtQuerySystemTime(&mut time).ok(), "Failed to get system time");
         }
 
         // dumb ass, read the docs. egui clearly says `in seconds`.
